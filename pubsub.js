@@ -3,6 +3,7 @@
 	jQuery pub/sub plugin by Peter Higgins (dante@dojotoolkit.org)
 
 	Loosely based on Dojo publish/subscribe API, limited in scope. Rewritten blindly.
+	Updated to taste by nmorse
 
 	Original is (c) Dojo Foundation 2004-2010. Released under either AFL or new BSD, see:
 	http://dojofoundation.org/license for more information.
@@ -14,27 +15,33 @@
 	// the topic/subscription hash
 	var cache = {};
 
-	d.publish = function(/* String */topic, /* Any */args){
+	d.publish = function(/* String */topic, /* Any */args, /* Boolean */ squawk){
 		// summary: 
 		//		Publish some data on a named topic.
 		// topic: String
 		//		The channel to publish on
 		// args: Any
-		//		The data to publish. The single
-		//		argument (may be a hash of arguments) passed to the subscribed functions. 
+		//		The datum to publish. The single
+		//		argument (may be a hash of several data arguments) 
+		//		passed to the subscribed functions. 
+		// squawk: Boolean
+		//		A debugging flag that enables alert dialogs.
 		//
 		// example:
 		//		Publish stuff on '/some/topic'. Anything subscribed will be called
 		//		with a function signature like: function(arg_obj){ ... }
 		//
 		//	|		$.publish("/some/topic", {"arg_name":arg_value});
-		cache[topic] && d.each(cache[topic], function(){
-			//alert('pub '+topic+' with '+JSON.stringify(args));
-			this.apply(d, [args]);
-		});
+		if (cache[topic]) {
+			d.each(cache[topic], function() {
+				if(squawk || this.squawk) {alert('pub '+topic+' with '+JSON.stringify(args));}
+				this.callback.apply(d, [args]);
+			});
+		}
+		else { alert('no subscribers to topic - '+topic); }
 	};
 
-	d.subscribe = function(/* String */topic, /* Function */callback){
+	d.subscribe = function(/* String */topic, /* Function */callback, /* Boolean */ squawk){
 		// summary:
 		//		Register a callback on a named topic.
 		// topic: String
@@ -43,6 +50,8 @@
 		//		The handler event. Anytime something is $.publish'ed on a 
 		//		subscribed channel, the callback will be called with the
 		//		published array as ordered arguments.
+		// squawk: Boolean
+		//		A debugging flag that enables alert dialogs.
 		//
 		// returns: Array
 		//		A handle which can be used to unsubscribe this particular subscription.
@@ -53,7 +62,7 @@
 		if(!cache[topic]){
 			cache[topic] = [];
 		}
-		cache[topic].push(callback);
+		cache[topic].push({"callback":callback, "squawk":squawk});
 		return [topic, callback]; // Array
 	};
 
