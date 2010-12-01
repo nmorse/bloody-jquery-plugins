@@ -30,7 +30,7 @@
 		//	|		$.publish("/some/topic", {"arg_name":arg_value});
 		cache[topic] && d.each(cache[topic], function(){
 			//alert('pub '+topic+' with '+JSON.stringify(args));
-			this.apply(d, [args] || []);
+			this.apply(d, [args]);
 		});
 	};
 
