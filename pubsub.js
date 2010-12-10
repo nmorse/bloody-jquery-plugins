@@ -27,24 +27,24 @@
 		// squawk: Boolean
 		//		A debugging flag that enables alert dialogs.
 		//
-		// returns: Array
-		//		An array of returned values from subscribers. The array length will be the 
-		//		number of subscribers called and each element will be the returned value.
+		// returns: Object
+		//		An object that represents the combined results from the subscribers. The object will
+		//		be the extended union of all the subscribers returned value.
 		//
 		// example:
 		//		Publish stuff on '/some/topic'. Anything subscribed will be called
 		//		with a function signature like: function(arg_obj){ ... }
 		//
-		//	|		ret_val_array = $.publish("/some/topic", {"arg_name":arg_value});
-		var results_array = [];
+		//	|		ret_val_obj = $.publish("/some/topic", {"arg_name":arg_value});
+		var results_obj = {};
 		if (cache[topic]) {
 			d.each(cache[topic], function() {
 				if(squawk || this.squawk) {alert('pub '+topic+' with '+JSON.stringify(args));}
-				results_array.push( this.callback.apply(d, [args]) );
+				results_obj = $.extend(true, results_obj, this.callback.apply(d, [args]) );
 			});
 		}
 		else { alert('no subscribers to topic - '+topic); }
-		return results_array;
+		return results_obj;
 	};
 
 	d.subscribe = function(/* String */topic, /* Function */callback, /* Boolean */ squawk){
