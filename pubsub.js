@@ -47,6 +47,37 @@
 		return results_obj;
 	};
 
+	d.publish2web = function(url, data, success_publish_topic, dataType, request_type) {
+		// summary: 
+		//		Publish to a web service, some data, and on success, publish a named topic with response data.
+		// url: String
+		//      URL of the web service.
+		// data: Any
+		//		The datum to publish. The single
+		//		argument (may be an object or array with several data arguments) 
+		//		passed to the subscribed functions. 
+		// success_publish_topic: String
+		//		The channel to publish on when a succesfull responce comes back from the web server.
+		// dataType: String ["json", "xml"]
+		//		default json. 
+		// request_type: String  ["GET", "POST"]
+		//		default GET.
+		//
+		// example:
+		//		Publish stuff to '/some/web/service/url/'
+		//	    $.publish2web("/some/web/service/url/", {"arg_name":arg_value}, "reply/topic");
+        var dt = dataType||"json";
+        var rt = request_type||"GET";
+        $.ajax({
+          "url": url,
+          "dataType": dt,
+          "data": data,
+          "type":rt,
+          "error": function(XMLHttpRequest, textStatus, errorThrown) {var e = errorThrown||''; alert(url+" :: "+XMLHttpRequest.statusText+" :: "+textStatus+" :: "+JSON.stringify(e, null, " "));},
+          "success": function(resp) {$.publish(success_publish_topic, resp);}
+        });
+    };
+
 	d.subscribe = function(/* String */topic, /* Function */callback, /* Boolean */ squawk){
 		// summary:
 		//		Register a callback on a named topic.
